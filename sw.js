@@ -47,15 +47,15 @@ self.addEventListener('activate', e =>{
 
 //eventos fetch para descargar archivos estaticos
 self.addEventListener('fetch', e => {
-    console.log(e);
-
-    //Para que la pwa funcione offline
+    console.log('Fetch', e)
+   
     e.respondWith(
-        caches.match(e.request)
-        .then(respuestaCache => {
-            return respuestaCache;
-        })
-        //Mostramos una pagina de error en caso de no encontrar la pagina
-        .then(cacheResponse => (cacheResponse ? cacheResponse : caches.match('/error.html')))
-    )
-});
+        (async function () {
+          const cachedResponse = await caches.match(e.request);
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          return fetch(e.request);
+        })()    // <-- Importante estos paréntesis finales!!
+      );
+  });
